@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Pack Builder</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>.container{padding:24px}</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Audit Pack Builder</h2>
+    <div class="panels" style="grid-template-columns: 1fr 1fr;">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Build Pack</div>
+          <div class="panel-sub">Query or CAR ID</div>
+        </div>
+        <div class="actions">
+          <input id="query" placeholder="Query (optional)" style="flex:1" />
+          <input id="carId" placeholder="CAR/NCR ID (optional)" style="flex:1" />
+        </div>
+        <div style="margin-top:8px">
+          <label>Documents:</label>
+          <select id="docSelect" multiple size="6" style="width:100%">
+            {% for d in docs %}
+              <option value="{{ d.doc_id }}">{{ d.filename }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <label>Max Items</label>
+          <input id="maxItems" type="number" value="20" style="width:90px" />
+          <label><input id="includeForms" type="checkbox" checked /> Include Forms</label>
+          <label><input id="includeCompare" type="checkbox" /> Include Compare</label>
+          <button id="buildBtn" class="btn btn-primary" style="margin-left:auto">Build Pack</button>
+        </div>
+        <div class="hint">Optional redactions are read from <code>config/redaction.yaml</code>.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Result</div></div>
+        <div id="result" class="hint">—</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('buildBtn').addEventListener('click', async () => {
+      const docIds = Array.from(document.getElementById('docSelect').selectedOptions).map(o=>o.value);
+      const body = {
+        query: document.getElementById('query').value || undefined,
+        car_id: document.getElementById('carId').value || undefined,
+        filters: docIds.length ? {doc_ids: docIds} : {},
+        include_forms: document.getElementById('includeForms').checked,
+        include_compare_results: document.getElementById('includeCompare').checked,
+        max_items: parseInt(document.getElementById('maxItems').value || '20', 10)
+      };
+      const res = await fetch('/audit/pack', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      const j = await res.json();
+      if(res.ok){
+        document.getElementById('result').innerHTML = 
+          `Pack: <b>${j.pack_id}</b><br/>` +
+          `<a href="${j.index_url}" target="_blank">Index HTML</a> · ` +
+          `<a href="/packs/${j.pack_id}/index.pdf" target="_blank">Index PDF</a> · ` +
+          `<a href="${j.manifest_url}" target="_blank">Manifest</a> · ` +
+          `<a href="${j.zip_url}" target="_blank">ZIP</a>`;
+      } else {
+        document.getElementById('result').textContent = 'Error: ' + (j.detail || JSON.stringify(j));
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -13,6 +13,7 @@ from ingest import Ingestor
 from search import SearchEngine
 from utils.logger import get_logger
 from routes.forms import router as forms_router
+from routes.audit import router as audit_router
 
 logger = get_logger(__name__)
 
@@ -23,7 +24,9 @@ os.makedirs("data/uploads", exist_ok=True)
 os.makedirs("static", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="data/uploads"), name="uploads")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/packs", StaticFiles(directory="packs"), name="packs")
 app.include_router(forms_router)
+app.include_router(audit_router)
 
 _ingestor = Ingestor()
 _search = SearchEngine()
@@ -48,6 +51,14 @@ async def ui_forms(request: Request):
     for di in ingestor.doc_store.docs.values():
         files.append({"doc_id": di.doc_id, "filename": di.filename})
     return templates.TemplateResponse("ui/forms.html", {"request": request, "docs": files})
+
+@app.get("/ui/audit")
+async def ui_audit(request: Request):
+    ingestor = Ingestor()
+    files = []
+    for di in ingestor.doc_store.docs.values():
+        files.append({"doc_id": di.doc_id, "filename": di.filename})
+    return templates.TemplateResponse("ui/audit.html", {"request": request, "docs": files})
 
 
 @app.post("/upload")

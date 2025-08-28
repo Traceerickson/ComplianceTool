@@ -45,3 +45,8 @@ pip install python-multipart
 2025-08-28 12:32:18,655 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
 2025-08-28 12:32:35,052 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
 2025-08-28 12:32:35,056 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:35:17,708 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:35:17,712 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:35:43,033 [INFO] search: Search query='tolerance' top_k=5 results=5
+2025-08-28 12:35:47,679 [INFO] search: Search query='tolerance' top_k=5 results=5
+2025-08-28 12:35:54,439 [INFO] search: Search query='Guide' top_k=5 results=5

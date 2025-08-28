@@ -1,0 +1,11 @@
+patterns:
+  - "SN\\d{6}"
+  - "P-\\d{3,}"
+  - "(?i)email:\\s*[^\n\r\s]+@[^\n\r\s]+"
+  - "(?i)itar"
+  - "(?i)export\s+controlled"
+  - "\b\d{3}-\d{2}-\d{4}\b"  # e.g., SSN pattern (demo)
+regions:
+  # Example static region redaction entry (filename, page, rect)
+  # - { filename: "some.pdf", page: 1, x: 100, y: 150, w: 200, h: 40 }
+

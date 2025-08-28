@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Audit Pack {{ pack_id }}</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    body{padding:24px}
+    .summary{color:#475569}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #e5e7eb;padding:8px;vertical-align:top}
+    th{background:#f8fafc}
+  </style>
+  </head>
+  <body>
+    <h2>Audit Pack — {{ pack_id }}</h2>
+    <div class="summary">Created by {{ created_by }} at {{ created_at }} · Query/CAR: {{ query_or_car }}</div>
+    <h3>Evidence</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Filename</th><th>Page</th><th>Excerpt</th><th>Citation</th><th>Redaction</th></tr>
+      </thead>
+      <tbody>
+      {% for ev in evidence %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ ev.filename }}</td>
+          <td>{{ ev.page }}</td>
+          <td>{{ ev.excerpt }}</td>
+          <td>{{ ev.citation }}</td>
+          <td>{% if ev.redaction_applied %}<span class="pill pill-tolerance">Yes</span>{% else %}No{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p class="summary">Filters: {{ filters }}</p>
+  </body>
+  </html>
