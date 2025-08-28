@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Change Impact Brief</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>.container{padding:24px}</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Change Impact Brief</h2>
+    <div class="panels" style="grid-template-columns: 1fr 1fr;">
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">ECO / Spec Change</div><div class="panel-sub">Paste text or upload file</div></div>
+        <textarea id="ecoText" style="width:100%;min-height:160px"></textarea>
+        <div class="actions" style="margin-top:8px">
+          <input id="ecoFile" type="file" accept=".txt,.docx,.pdf" />
+          <input id="effectiveDate" type="date" />
+          <button id="genBtn" class="btn btn-primary" style="margin-left:auto">Generate Brief</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Filters</div><div class="panel-sub">Asset types & owners</div></div>
+        <div>
+          <label>Types:</label>
+          <select id="types" multiple size="6" style="width:100%">
+            <option>SOP</option>
+            <option>CHECKLIST</option>
+            <option>NC_PROGRAM</option>
+            <option>FIXTURE</option>
+            <option>TRAINING</option>
+            <option>FORM_TEMPLATE</option>
+          </select>
+        </div>
+        <div style="margin-top:8px">
+          <label>Owners:</label>
+          <select id="owners" multiple size="4" style="width:100%">
+            <option>QA</option>
+            <option>MFG Eng</option>
+            <option>Tooling</option>
+            <option>HR/QA</option>
+            <option>Eng</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel full">
+      <div class="panel-header"><div class="panel-title">Impacted Assets</div><div class="panel-sub">Sorted by impact score</div></div>
+      <div class="table-wrap">
+        <table class="table" id="items">
+          <thead><tr><th>Asset</th><th>Owner</th><th>Impact</th><th>Rationale</th><th>Action</th><th>Citation</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="actions"><button id="exportBtn" class="btn">Export DOCX</button></div>
+    </div>
+  </div>
+
+  <script>
+    let lastBrief = null;
+    function multival(sel){ return Array.from(document.getElementById(sel).selectedOptions).map(o=>o.value); }
+    function badge(score){
+      const color = score>=70 ? '#ef4444' : score>=40 ? '#f59e0b' : '#10b981';
+      return `<span style="background:${color};color:#fff;padding:2px 8px;border-radius:10px">${score}</span>`;
+    }
+    async function build(){
+      const types = multival('types');
+      const owners = multival('owners');
+      const body = { eco_text: document.getElementById('ecoText').value, effective_date: document.getElementById('effectiveDate').value, filters: {types, owners}, max_items: 50 };
+      const file = document.getElementById('ecoFile').files[0];
+      let res;
+      if(file){
+        const form = new FormData();
+        form.append('eco_file', file);
+        form.append('payload', new Blob([JSON.stringify(body)], {type:'application/json'}));
+        res = await fetch('/impact/brief', {method:'POST', body: form});
+      } else {
+        res = await fetch('/impact/brief', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      }
+      const j = await res.json();
+      lastBrief = j;
+      const tb = document.querySelector('#items tbody');
+      tb.innerHTML='';
+      (j.items||[]).sort((a,b)=>b.impact_score-a.impact_score).forEach(it=>{
+        const cit = (it.citations&&it.citations[0]) ? `${it.citations[0].filename} p${it.citations[0].page}` : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${it.asset_type} — ${it.title}</td><td>${it.owner}</td><td>${badge(it.impact_score)}</td><td>${it.rationale}</td><td>${it.suggested_action}</td><td>${cit}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+    document.getElementById('genBtn').addEventListener('click', build);
+    document.getElementById('exportBtn').addEventListener('click', async ()=>{
+      if(!lastBrief){ alert('Generate a brief first'); return; }
+      const res = await fetch(`/impact/export/${lastBrief.id}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({format:'docx'})});
+      const j = await res.json();
+      alert('Exported: '+(j.exported||[]).join(', '));
+    });
+  </script>
+</body>
+</html>
+

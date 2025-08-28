@@ -35,8 +35,19 @@ async def create_as9102_draft(payload: Dict = Body(...)):
 async def create_8d_draft(payload: Dict = Body(...)):
     ncr = payload.get("ncr_json", {})
     doc_ids: List[str] = payload.get("doc_ids", [])
+    lessons_ids = payload.get("lessons_from") or []
+    lessons_query = payload.get("lessons_query")
+    if payload.get("lessons") and not (lessons_ids or lessons_query):
+        # Derive a query from NCR JSON if present
+        parts = []
+        if isinstance(ncr, dict):
+            for k in ("symptom", "defect", "part", "lot"):
+                v = ncr.get(k)
+                if v:
+                    parts.append(str(v))
+        lessons_query = " ".join(parts) or None
     try:
-        bundle = generate_8d(ncr_json=ncr, evidence_doc_ids=doc_ids)
+        bundle = generate_8d(ncr_json=ncr, evidence_doc_ids=doc_ids, lessons_from=lessons_ids, lessons_query=lessons_query)
         return JSONResponse(bundle.__dict__, media_type="application/json")
     except Exception as e:
         logger.exception("8D draft error: %s", e)

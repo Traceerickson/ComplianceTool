@@ -14,6 +14,8 @@ from search import SearchEngine
 from utils.logger import get_logger
 from routes.forms import router as forms_router
 from routes.audit import router as audit_router
+from routes.lessons import router as lessons_router
+from routes.impact import router as impact_router
 
 logger = get_logger(__name__)
 
@@ -28,6 +30,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/packs", StaticFiles(directory="packs", check_dir=False), name="packs")
 app.include_router(forms_router)
 app.include_router(audit_router)
+app.include_router(lessons_router)
+app.include_router(impact_router)
 
 _ingestor = Ingestor()
 _search = SearchEngine()
@@ -60,6 +64,14 @@ async def ui_audit(request: Request):
     for di in ingestor.doc_store.docs.values():
         files.append({"doc_id": di.doc_id, "filename": di.filename})
     return templates.TemplateResponse("ui/audit.html", {"request": request, "docs": files})
+
+@app.get("/ui/lessons")
+async def ui_lessons(request: Request):
+    return templates.TemplateResponse("ui/lessons.html", {"request": request})
+
+@app.get("/ui/impact")
+async def ui_impact(request: Request):
+    return templates.TemplateResponse("ui/impact.html", {"request": request})
 
 
 @app.post("/upload")

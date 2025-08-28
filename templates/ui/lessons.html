@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lessons Learned</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>.container{padding:24px}</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Lessons-Learned</h2>
+    <div class="panels" style="grid-template-columns: 1fr 1fr;">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Search Prior NCR/CAPA</div>
+          <div class="panel-sub">e.g., porosity 7075-T6</div>
+        </div>
+        <div class="actions">
+          <input id="q" placeholder="Search lessons..." style="flex:1" />
+          <button id="searchBtn" class="btn btn-primary">Search</button>
+        </div>
+        <div id="clusterBox" class="hint" style="margin-top:8px"><a href="#" id="refreshClusters">View clusters</a></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Results</div></div>
+        <div class="table-wrap">
+          <table class="table" id="results">
+            <thead>
+              <tr><th></th><th>NCR</th><th>Defect</th><th>Corrective Action</th><th>Outcome</th><th>Owner</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button id="apply8D" class="btn">Apply to new 8D</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function search(){
+      const q = document.getElementById('q').value;
+      const res = await fetch('/lessons/search', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({query:q, top_k:10})});
+      const j = await res.json();
+      const tb = document.querySelector('#results tbody');
+      tb.innerHTML = '';
+      (j.results||[]).forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><input type="checkbox" class="pick" value="${r.ncr_id}"></td>`+
+                       `<td>${r.ncr_id}</td><td>${r.defect||''}</td><td>${r.corrective_action||''}</td>`+
+                       `<td>${r.outcome||''}</td><td>${r.owner||''}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+    document.getElementById('searchBtn').addEventListener('click', search);
+    document.getElementById('apply8D').addEventListener('click', async ()=>{
+      const ids = Array.from(document.querySelectorAll('.pick:checked')).map(c=>c.value);
+      const res = await fetch('/forms/8d/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ncr_json:{}, doc_ids:[], lessons_from: ids, lessons_query: document.getElementById('q').value})});
+      const j = await res.json();
+      if(j.draft_id){
+        alert('Draft created. Completion: '+(j.completion_score||0)+'%');
+      } else {
+        alert('Error creating draft: '+(j.detail||JSON.stringify(j)));
+      }
+    });
+    document.getElementById('refreshClusters').addEventListener('click', async (e)=>{
+      e.preventDefault();
+      const res = await fetch('/lessons/clusters');
+      const j = await res.json();
+      const txt = (j.clusters||[]).map(c=>`[${c.id}] ${c.keywords.join(', ')} (${c.count})`).join(' · ');
+      document.getElementById('clusterBox').textContent = txt || 'No clusters available';
+    });
+  </script>
+</body>
+</html>
+

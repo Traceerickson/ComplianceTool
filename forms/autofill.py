@@ -186,7 +186,7 @@ def generate_as9102(doc_ids: List[str], cmm_files: List[str], form_levels: List[
     return bundle
 
 
-def generate_8d(ncr_json: Dict, evidence_doc_ids: List[str]) -> DraftBundle:
+def generate_8d(ncr_json: Dict, evidence_doc_ids: List[str], lessons_from: Optional[List[str]] = None, lessons_query: Optional[str] = None) -> DraftBundle:
     ingestor = Ingestor()
     doc_store = ingestor.doc_store
     docs = [doc_store.docs.get(did) for did in evidence_doc_ids if did in doc_store.docs]
@@ -209,6 +209,37 @@ def generate_8d(ncr_json: Dict, evidence_doc_ids: List[str]) -> DraftBundle:
         if pages and pages[0]:
             cit = Citation(filename=d.filename, page=1, line=1, excerpt=pages[0][0][:200])
             _add_prov(prov, "eightd.D2_problem", [cit])
+
+    # Optionally enrich from lessons-learned
+    try:
+        from lessons.search import search_lessons, LessonsStore
+    except Exception:
+        search_lessons = None
+        LessonsStore = None  # type: ignore
+
+    selected_ids: List[str] = lessons_from or []
+    if (not selected_ids) and lessons_query and search_lessons:
+        res = search_lessons(lessons_query, top_k=3)
+        selected_ids = [r.get("ncr_id") for r in res if r.get("ncr_id")]
+
+    if selected_ids and LessonsStore:
+        store = LessonsStore()
+        # Merge top prior actions into D4/D5
+        roots = []
+        actions = []
+        for nid in selected_ids:
+            capa = next((c for c in store.capa.values() if c.ncr_id == nid), None)
+            if capa and capa.root_cause:
+                roots.append(f"NCR {nid}: {capa.root_cause}")
+            if capa and capa.corrective_action:
+                actions.append(f"NCR {nid}: {capa.corrective_action}")
+            # Add provenance tagged to NCR
+            _add_prov(prov, "eightd.D4_root_cause", [Citation(filename=f"NCR_{nid}.json", page=1, line=1, excerpt="from lessons")])
+            _add_prov(prov, "eightd.D5_corrective_action", [Citation(filename=f"NCR_{nid}.json", page=1, line=1, excerpt="from lessons")])
+        if roots and not e.D4_root_cause:
+            e.D4_root_cause = "\n".join(roots)
+        if actions and not e.D5_corrective_action:
+            e.D5_corrective_action = "\n".join(actions)
 
     # Score: basic presence of D1, D2, D3
     present = sum(int(bool(x)) for x in [e.D1_team, e.D2_problem, e.D3_containment])

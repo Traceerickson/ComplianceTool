@@ -29,9 +29,12 @@ Endpoints
 - POST `/forms/as9102/draft` — body: `{doc_ids[], cmm_files[], form_levels[]}`
 - POST `/forms/8d/draft` — body: `{ncr_json, doc_ids[]}`
 - POST `/forms/export` — body: `{draft: <DraftBundle>, format: "docx"|"xlsx"|"all"}`
- - POST `/audit/pack` — body: `{car_id|query, filters?, redaction?, max_items?}` → returns pack id + links
- - GET `/audit/pack/{pack_id}/download` — download the ZIP
- - GET `/audit/pack/{pack_id}/manifest` — manifest.json
+- POST `/audit/pack` — body: `{car_id|query, filters?, redaction?, max_items?}` → returns pack id + links
+- GET `/audit/pack/{pack_id}/download` — download the ZIP
+- GET `/audit/pack/{pack_id}/manifest` — manifest.json
+ - POST `/lessons/search` — body: `{query, top_k}` → prior NCR/CAPA with actions + citations
+ - GET `/lessons/clusters` — returns clusters with keyword labels
+ - GET `/ui/lessons` — Dev UI to search lessons and apply to new 8D
 
 Testing
 - Run: `pytest -q`
