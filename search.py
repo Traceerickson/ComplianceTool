@@ -1,34 +1,35 @@
-import logging
-from typing import List, Dict
+from __future__ import annotations
 
-from utils.embedding import embed_text, EMBED_DIM
-from vector_store import VectorStore
+from typing import Dict, List
 
-logging.basicConfig(level=logging.INFO)
+from storage.vector_store import VectorStore
+from utils.embeddings import deterministic_embedding
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class SearchEngine:
-    def __init__(self, store: VectorStore):
-        self.store = store
+    def __init__(self, dim: int = 384):
+        self.vstore = VectorStore(dim=dim)
 
-    def search(self, query: str, top_n: int = 5) -> List[Dict]:
-        logging.info('Search query: %s', query)
-        vector = embed_text(query)
-        results = self.store.search(vector, top_n)
-        output: List[Dict] = []
-        for score, meta in results:
-            output.append({
-                'score': score,
-                'text': meta['text'],
-                'citation': {
-                    'filename': meta['filename'],
-                    'page_number': meta['page_number'],
-                    'lines': [meta['line_start'], meta['line_end']],
-                },
-            })
-        return output
+    def search(self, query: str, top_k: int = 5) -> List[Dict]:
+        q_emb = deterministic_embedding(query, dim=self.vstore.dim)
+        results = self.vstore.search(q_emb, top_k=top_k)
+        payload: List[Dict] = []
+        for score, rec in results:
+            payload.append(
+                {
+                    "score": score,
+                    "text": rec.text,
+                    "citation": {
+                        "filename": rec.filename,
+                        "page_number": rec.page_number,
+                        "line_start": rec.line_start,
+                        "line_end": rec.line_end,
+                    },
+                }
+            )
+        logger.info("Search query='%s' top_k=%d results=%d", query, top_k, len(payload))
+        return payload
 
-
-def load_search_engine(store_path: str) -> SearchEngine:
-    store = VectorStore.load(store_path)
-    return SearchEngine(store)

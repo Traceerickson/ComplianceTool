@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Compliance Copilot - Spec/Rev Guard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    h1 { margin-bottom: 0.25rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .card { border: 1px solid #ddd; border-radius: 6px; padding: 1rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; font-size: 0.95rem; }
+    th { background: #f2f2f2; text-align: left; }
+    .ok { color: green; }
+    .bad { color: #b00020; font-weight: bold; }
+    .files { max-height: 200px; overflow: auto; border: 1px solid #eee; padding: 6px; }
+    .muted { color: #666; font-size: 0.9rem; }
+  </style>
+  <script>
+    async function handleUpload(ev) {
+      ev.preventDefault();
+      const form = document.getElementById('uploadForm');
+      const data = new FormData(form);
+      const res = await fetch('/upload', { method: 'POST', body: data });
+      const json = await res.json();
+      alert('Uploaded: ' + (json.saved || []).join(', '));
+      window.location.reload();
+    }
+  </script>
+  </head>
+  <body>
+    <h1>AI Compliance Copilot</h1>
+    <div class="muted">Spec/Rev Guard prototype · Upload controlled docs then compare.</div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Upload Documents (PDF/DOCX/TXT)</h3>
+        <form id="uploadForm" onsubmit="handleUpload(event)">
+          <input name="files" type="file" multiple accept=".pdf,.docx,.doc,.txt,.text" />
+          <button type="submit">Upload</button>
+        </form>
+        <p class="muted">Files save under <code>data/uploads</code>.</p>
+      </div>
+      <div class="card">
+        <h3>Compare Revisions & Tolerances</h3>
+        <form method="POST" action="/compare_ui">
+          <div class="files">
+            {% for f in files %}
+              <label><input type="checkbox" name="filenames" value="{{ f }}" {% if selected and f in selected %}checked{% endif %}/> {{ f }}</label><br/>
+            {% else %}
+              <em>No files found in data/</em>
+            {% endfor %}
+          </div>
+          <button type="submit">Compare Selected</button>
+        </form>
+        <p class="muted">Select 2–3 related docs for comparison.</p>
+      </div>
+    </div>
+
+    {% if report %}
+    <div class="card" style="margin-top:1.5rem">
+      <h3>Compare Report</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Clause/Line</th>
+            <th>Doc A</th>
+            <th>Doc B</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if report.mismatches|length == 0 %}
+            <tr><td colspan="4" class="ok">No mismatches detected</td></tr>
+          {% endif %}
+          {% for m in report.mismatches %}
+            <tr>
+              <td>{{ m.type }}</td>
+              <td>{{ m.clause }}</td>
+              <td>
+                <div class="bad">
+                  {{ m.a.filename }} — {{ m.a.value }}
+                </div>
+                <div class="muted">p. {{ m.a.page }}, line {{ m.a.line }}</div>
+                {% if m.a.context %}<div class="muted">{{ m.a.context }}</div>{% endif %}
+              </td>
+              <td>
+                <div class="bad">
+                  {{ m.b.filename }} — {{ m.b.value }}
+                </div>
+                <div class="muted">p. {{ m.b.page }}, line {{ m.b.line }}</div>
+                {% if m.b.context %}<div class="muted">{{ m.b.context }}</div>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+  </body>
+  </html>
+

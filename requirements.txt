@@ -1,0 +1,9 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pdfminer.six>=20231228
+python-docx>=1.1
+numpy>=1.24
+Jinja2>=3.1
+# Optional: FAISS for faster vector search. Falls back to NumPy if missing.
+# faiss-cpu>=1.8
+pytest>=8.0
