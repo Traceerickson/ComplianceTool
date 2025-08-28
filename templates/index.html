@@ -3,20 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Compliance Copilot - Spec/Rev Guard</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    h1 { margin-bottom: 0.25rem; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    .card { border: 1px solid #ddd; border-radius: 6px; padding: 1rem; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; font-size: 0.95rem; }
-    th { background: #f2f2f2; text-align: left; }
-    .ok { color: green; }
-    .bad { color: #b00020; font-weight: bold; }
-    .files { max-height: 200px; overflow: auto; border: 1px solid #eee; padding: 6px; }
-    .muted { color: #666; font-size: 0.9rem; }
-  </style>
+  <title>AI Compliance Copilot — Spec/Rev Guard</title>
+  <link rel="stylesheet" href="/static/styles.css" />
   <script>
     async function handleUpload(ev) {
       ev.preventDefault();
@@ -24,81 +12,175 @@
       const data = new FormData(form);
       const res = await fetch('/upload', { method: 'POST', body: data });
       const json = await res.json();
-      alert('Uploaded: ' + (json.saved || []).join(', '));
-      window.location.reload();
+      const note = document.querySelector('#uploadNote');
+      note.textContent = 'Uploaded: ' + (json.saved || []).join(', ');
+      note.classList.add('show');
+      setTimeout(() => window.location.reload(), 900);
     }
   </script>
-  </head>
-  <body>
-    <h1>AI Compliance Copilot</h1>
-    <div class="muted">Spec/Rev Guard prototype · Upload controlled docs then compare.</div>
-
-    <div class="grid">
-      <div class="card">
-        <h3>Upload Documents (PDF/DOCX/TXT)</h3>
-        <form id="uploadForm" onsubmit="handleUpload(event)">
-          <input name="files" type="file" multiple accept=".pdf,.docx,.doc,.txt,.text" />
-          <button type="submit">Upload</button>
-        </form>
-        <p class="muted">Files save under <code>data/uploads</code>.</p>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">AC</div>
+        <div class="brand-text">
+          <div class="title">AI Compliance</div>
+          <div class="subtitle">Copilot</div>
+        </div>
       </div>
-      <div class="card">
-        <h3>Compare Revisions & Tolerances</h3>
-        <form method="POST" action="/compare_ui">
-          <div class="files">
-            {% for f in files %}
-              <label><input type="checkbox" name="filenames" value="{{ f }}" {% if selected and f in selected %}checked{% endif %}/> {{ f }}</label><br/>
-            {% else %}
-              <em>No files found in data/</em>
-            {% endfor %}
+      <nav class="nav">
+        <a class="nav-item active" href="/">
+          <span class="icon">🏠</span> Dashboard
+        </a>
+        <a class="nav-item" href="/">
+          <span class="icon">📄</span> Documents
+        </a>
+        <a class="nav-item" href="/search?query=tolerance">
+          <span class="icon">🔎</span> Search
+        </a>
+        <a class="nav-item" href="#">
+          <span class="icon">⚙️</span> Settings
+        </a>
+      </nav>
+      <div class="sidebar-footer">{{ files|length }} files available</div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="page-title">Spec/Rev Guard</div>
+          <div class="tag">Prototype</div>
+        </div>
+        <div class="searchbox">
+          <form action="/search" method="get">
+            <input type="text" name="query" placeholder="Search documents..." />
+          </form>
+        </div>
+        <div class="user">
+          <div class="avatar">A</div>
+        </div>
+      </header>
+
+      <section class="panels">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Upload Documents</div>
+            <div class="panel-sub">PDF, DOCX, TXT</div>
           </div>
-          <button type="submit">Compare Selected</button>
-        </form>
-        <p class="muted">Select 2–3 related docs for comparison.</p>
+          <form id="uploadForm" onsubmit="handleUpload(event)">
+            <div class="upload">
+              <input class="file" name="files" type="file" multiple accept=".pdf,.docx,.doc,.txt,.text" />
+              <button class="btn btn-primary" type="submit">Upload</button>
+            </div>
+            <div id="uploadNote" class="note"></div>
+            <div class="hint">Files are stored under <code>data/uploads</code> and ingested automatically.</div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Compare Revisions & Tolerances</div>
+            <div class="panel-sub">Select 2–3 related docs</div>
+          </div>
+          <form method="POST" action="/compare_ui">
+            <div class="card-grid">
+              {% for f in files %}
+              <label class="card-item">
+                <input type="checkbox" name="filenames" value="{{ f }}" {% if selected and f in selected %}checked{% endif %}/>
+                <div class="card-body">
+                  <div class="card-icon">📄</div>
+                  <div class="card-title">{{ f }}</div>
+                  <div class="card-meta">Ready</div>
+                </div>
+              </label>
+              {% else %}
+              <div class="empty">No files found in <code>data/</code></div>
+              {% endfor %}
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" type="submit">Compare Selected</button>
+              <span class="muted">Hold Ctrl/Cmd to pick multiple.</span>
+            </div>
+          </form>
+        </div>
+
+        {% if report %}
+        <div class="panel full">
+          <div class="panel-header">
+            <div class="panel-title">Compare Report</div>
+            <div class="panel-sub">{{ report.mismatches|length }} mismatches</div>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Clause</th>
+                  <th>Doc A</th>
+                  <th>Doc B</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% if report.mismatches|length == 0 %}
+                <tr><td colspan="4" class="ok">No mismatches detected</td></tr>
+              {% endif %}
+              {% for m in report.mismatches %}
+                <tr>
+                  <td><span class="pill pill-{{ m.type }}">{{ m.type }}</span></td>
+                  <td class="clause">{{ m.clause }}</td>
+                  <td>
+                    <div class="val"><strong>{{ m.a.filename }}</strong> — {{ m.a.value }}</div>
+                    <div class="cite">p. {{ m.a.page }}, line {{ m.a.line }}</div>
+                    {% if m.a.context %}<div class="context">{{ m.a.context }}</div>{% endif %}
+                  </td>
+                  <td>
+                    <div class="val"><strong>{{ m.b.filename }}</strong> — {{ m.b.value }}</div>
+                    <div class="cite">p. {{ m.b.page }}, line {{ m.b.line }}</div>
+                    {% if m.b.context %}<div class="context">{{ m.b.context }}</div>{% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+      </section>
+    </main>
+
+    <aside class="rightbar">
+      <div class="sidepanel">
+        <div class="sidepanel-title">Quick Controls</div>
+        <div class="switch">
+          <label>
+            <input type="checkbox" checked />
+            <span class="slider"></span>
+            Auto-ingest uploads
+          </label>
+        </div>
+        <div class="switch">
+          <label>
+            <input type="checkbox" />
+            <span class="slider"></span>
+            Strict tolerance check
+          </label>
+        </div>
       </div>
-    </div>
-
-    {% if report %}
-    <div class="card" style="margin-top:1.5rem">
-      <h3>Compare Report</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Clause/Line</th>
-            <th>Doc A</th>
-            <th>Doc B</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if report.mismatches|length == 0 %}
-            <tr><td colspan="4" class="ok">No mismatches detected</td></tr>
-          {% endif %}
-          {% for m in report.mismatches %}
-            <tr>
-              <td>{{ m.type }}</td>
-              <td>{{ m.clause }}</td>
-              <td>
-                <div class="bad">
-                  {{ m.a.filename }} — {{ m.a.value }}
-                </div>
-                <div class="muted">p. {{ m.a.page }}, line {{ m.a.line }}</div>
-                {% if m.a.context %}<div class="muted">{{ m.a.context }}</div>{% endif %}
-              </td>
-              <td>
-                <div class="bad">
-                  {{ m.b.filename }} — {{ m.b.value }}
-                </div>
-                <div class="muted">p. {{ m.b.page }}, line {{ m.b.line }}</div>
-                {% if m.b.context %}<div class="muted">{{ m.b.context }}</div>{% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% endif %}
-
-  </body>
-  </html>
-
+      <div class="sidepanel">
+        <div class="sidepanel-title">Summary</div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-val">{{ files|length }}</div>
+            <div class="stat-label">Files</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">{{ report.mismatches|length if report else 0 }}</div>
+            <div class="stat-label">Mismatches</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>

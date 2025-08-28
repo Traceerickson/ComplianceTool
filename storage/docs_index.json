@@ -1,0 +1,18 @@
+{
+  "9a270be67aaabd6771e94a6b72c70aeb6d7c76ae": {
+    "doc_id": "9a270be67aaabd6771e94a6b72c70aeb6d7c76ae",
+    "filename": "Guide to Building and Running a Local RAG System (NBA Example).docx",
+    "revisions": []
+  },
+  "dfe4dc1cfd130c96a2a482dfc79fc3257066a3ae": {
+    "doc_id": "dfe4dc1cfd130c96a2a482dfc79fc3257066a3ae",
+    "filename": "Robust Reliability Engine for Adaptive LLM Training.docx",
+    "revisions": [
+      {
+        "value": "IEW",
+        "page_number": 1,
+        "line_number": 2
+      }
+    ]
+  }
+}

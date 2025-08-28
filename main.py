@@ -19,7 +19,9 @@ app = FastAPI(title="AI Compliance Copilot")
 
 templates = Jinja2Templates(directory="templates")
 os.makedirs("data/uploads", exist_ok=True)
+os.makedirs("static", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="data/uploads"), name="uploads")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 _ingestor = Ingestor()
 _search = SearchEngine()
@@ -79,4 +81,3 @@ async def compare_ui(request: Request, filenames: List[str] = Form(...)):
     return templates.TemplateResponse(
         "index.html", {"request": request, "files": files, "report": report, "selected": filenames}
     )
-

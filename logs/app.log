@@ -1,0 +1,16 @@
+2025-08-28 12:08:36,372 [INFO] storage.vector_store: Initialized new NumPy fallback index (dim=384)
+2025-08-28 12:08:36,373 [INFO] storage.vector_store: Initialized new NumPy fallback index (dim=384)
+2025-08-28 12:08:36,375 [ERROR] fastapi: Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-08-28 12:09:06,860 [INFO] storage.vector_store: Initialized new NumPy fallback index (dim=384)
+2025-08-28 12:09:06,862 [INFO] storage.vector_store: Initialized new NumPy fallback index (dim=384)
+2025-08-28 12:12:13,185 [INFO] storage.vector_store: Initialized new NumPy fallback index (dim=384)
+2025-08-28 12:12:13,187 [INFO] storage.vector_store: Initialized new NumPy fallback index (dim=384)
+2025-08-28 12:14:02,417 [INFO] ingest: Ingesting file: data/uploads\Guide to Building and Running a Local RAG System (NBA Example).docx
+2025-08-28 12:14:02,473 [INFO] ingest: Ingested Guide to Building and Running a Local RAG System (NBA Example).docx: 1 pages, 12 chunks
+2025-08-28 12:14:17,790 [INFO] ingest: Ingesting file: data/uploads\Robust Reliability Engine for Adaptive LLM Training.docx
+2025-08-28 12:14:17,973 [INFO] ingest: Ingested Robust Reliability Engine for Adaptive LLM Training.docx: 1 pages, 9 chunks
+2025-08-28 12:14:31,862 [INFO] search: Search query='tolerance' top_k=5 results=0
