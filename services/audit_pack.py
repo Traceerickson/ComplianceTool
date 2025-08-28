@@ -14,15 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from dateutil import tz
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
-from reportlab.lib import colors
-
-from PyPDF2 import PdfReader, PdfWriter  # type: ignore
-from pdf2image import convert_from_path  # type: ignore
-from PIL import Image, ImageDraw  # type: ignore
+# Heavy/optional deps (reportlab, PyPDF2, pdf2image, PIL) are imported lazily
 
 from ingest import Ingestor
 from search import SearchEngine
@@ -199,6 +191,19 @@ def _write_index_html(build_dir: str, context: Dict[str, Any]):
 
 
 def _write_index_pdf(build_dir: str, context: Dict[str, Any]):
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.lib.units import inch
+        from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+        from reportlab.lib import colors
+    except Exception as e:  # pragma: no cover
+        # Gracefully skip PDF generation when reportlab is missing
+        logger.warning("ReportLab not available; skipping PDF index: %s", e)
+        with open(os.path.join(build_dir, 'index.pdf.missing.txt'), 'w', encoding='utf-8') as f:
+            f.write('index.pdf not generated. Install reportlab to enable PDF output.')
+        return
+
     pdf_path = os.path.join(build_dir, 'index.pdf')
     doc = SimpleDocTemplate(pdf_path, pagesize=letter, leftMargin=36, rightMargin=36, topMargin=36, bottomMargin=36)
     styles = getSampleStyleSheet()
@@ -384,4 +389,3 @@ def build_audit_pack(
         'manifest_path': os.path.join(build_dir, 'manifest.json'),
         'counts': {'items': len(evidence)},
     }
-
