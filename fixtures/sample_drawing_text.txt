@@ -1,0 +1,17 @@
+Part Number: P-12345
+Part Name: Bracket Assembly
+Rev F
+Material: 6061-T6 Aluminum
+Special Process: Anodize per MIL-A-8625 Type II
+
+Dim #1: Hole diameter; Nominal: 5.00 ±0.05 mm
+Dim #2: Slot width; Nominal: 7.50 ±0.10 mm
+Dim #3: Thickness; Nominal: 2.00 ±0.10 mm
+Dim #4: Length; Nominal: 25.00 ±0.30 mm
+Dim #5: Width; Nominal: 15.00 ±0.20 mm
+Dim #6: Counterbore depth; Nominal: 3.00 ±0.05 mm
+Dim #7: Chamfer; Nominal: 0.50 ±0.05 mm
+Dim #8: Surface flatness; Nominal: 0.10 ±0.02 mm
+Dim #9: Hole pitch; Nominal: 10.00 ±0.05 mm
+Dim #10: Edge radius; Nominal: 1.00 ±0.10 mm
+

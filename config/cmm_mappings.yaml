@@ -1,0 +1,7 @@
+cmm_columns:
+  characteristic_id: "Characteristic ID"
+  description: "Description"
+  measured: "Measured"
+  unit: "Unit"
+  instrument: "Instrument"
+

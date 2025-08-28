@@ -7,3 +7,7 @@ Jinja2>=3.1
 # Optional: FAISS for faster vector search. Falls back to NumPy if missing.
 # faiss-cpu>=1.8
 pytest>=8.0
+openpyxl>=3.1
+PyYAML>=6.0
+rapidfuzz>=3.7
+pydantic>=2.7

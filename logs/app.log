@@ -14,3 +14,34 @@ pip install python-multipart
 2025-08-28 12:14:17,790 [INFO] ingest: Ingesting file: data/uploads\Robust Reliability Engine for Adaptive LLM Training.docx
 2025-08-28 12:14:17,973 [INFO] ingest: Ingested Robust Reliability Engine for Adaptive LLM Training.docx: 1 pages, 9 chunks
 2025-08-28 12:14:31,862 [INFO] search: Search query='tolerance' top_k=5 results=0
+2025-08-28 12:16:04,319 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:16:04,321 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:16:46,559 [INFO] search: Search query='tolerance' top_k=5 results=5
+2025-08-28 12:22:02,577 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:22:02,583 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:22:34,823 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:22:34,839 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:23:04,332 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:23:04,335 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:24:18,493 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:24:18,497 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:25:55,618 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:25:55,624 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:28:16,618 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:28:16,622 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:29:03,186 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:29:03,189 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:30:02,671 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:30:02,674 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:30:18,513 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:30:18,516 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:30:45,145 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:30:45,147 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:31:05,414 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:31:05,416 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:32:03,484 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:32:03,490 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:32:18,650 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:32:18,655 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:32:35,052 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy
+2025-08-28 12:32:35,056 [INFO] storage.vector_store: Loaded fallback NumPy index from storage\index.npy

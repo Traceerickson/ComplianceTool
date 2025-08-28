@@ -1,0 +1,12 @@
+ID | Description | Nominal mm | ±Tol mm
+1 | Hole diameter | 5.00 mm | ±0.05
+2 | Slot width | 7.50 mm | ±0.10
+3 | Thickness | 2.00 mm | ±0.10
+4 | Length | 25.00 mm | ±0.30
+5 | Width | 15.00 mm | ±0.20
+6 | Counterbore depth | 3.00 mm | ±0.05
+7 | Chamfer | 0.50 mm | ±0.05
+8 | Surface flatness | 0.10 mm | ±0.02
+9 | Hole pitch | 10.00 mm | ±0.05
+10 | Edge radius | 1.00 mm | ±0.10
+

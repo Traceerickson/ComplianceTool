@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forms Auto-Fill</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>.container{padding:24px}</style>
+</head>
+<body>
+  <div class="container">
+    <h2>AS9102 / 8D Draft Generator</h2>
+    <div class="panels" style="grid-template-columns: 1fr 1fr;">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Upload CMM files</div>
+          <div class="panel-sub">CSV/XLSX</div>
+        </div>
+        <form id="cmmForm">
+          <input name="files" type="file" multiple accept=".csv,.xlsx,.xlsm,.xltx,.xltm" />
+          <button class="btn btn-primary" type="submit">Upload</button>
+          <div id="cmmNote" class="note"></div>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Generate AS9102 Draft</div>
+          <div class="panel-sub">Pick docs and form levels</div>
+        </div>
+        <div>
+          <label>Documents:</label>
+          <select id="docSelect" multiple size="6" style="width:100%">
+            {% for d in docs %}
+              <option value="{{ d.doc_id }}">{{ d.filename }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <label><input type="checkbox" class="fl" value="1" checked /> Form 1</label>
+          <label><input type="checkbox" class="fl" value="2" checked /> Form 2</label>
+          <label><input type="checkbox" class="fl" value="3" checked /> Form 3</label>
+          <button id="genBtn" class="btn btn-primary" style="margin-left:auto">Generate Draft</button>
+        </div>
+        <div id="scoreBox" class="hint">Completion score: —</div>
+        <div id="missingBox" class="hint"></div>
+      </div>
+    </div>
+
+    <div class="panel full">
+      <div class="panel-header">
+        <div class="panel-title">Draft Preview</div>
+        <div class="panel-sub">Hover a field to see citations</div>
+      </div>
+      <pre id="preview" style="white-space:pre-wrap; max-height:360px; overflow:auto"></pre>
+      <div class="actions">
+        <button id="exportDocx" class="btn">Export DOCX/XLSX</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastDraft = null;
+    document.getElementById('cmmForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(e.target);
+      const res = await fetch('/forms/upload_cmm', {method:'POST', body:data});
+      const j = await res.json();
+      document.getElementById('cmmNote').textContent = 'Uploaded: ' + (j.saved||[]).join(', ');
+    });
+
+    document.getElementById('genBtn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const docIds = Array.from(document.getElementById('docSelect').selectedOptions).map(o=>o.value);
+      const levels = Array.from(document.querySelectorAll('.fl:checked')).map(c=>c.value);
+      const res = await fetch('/forms/as9102/draft', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({doc_ids: docIds, cmm_files: [], form_levels: levels})});
+      const d = await res.json();
+      lastDraft = d;
+      document.getElementById('scoreBox').textContent = 'Completion score: ' + (d.completion_score||0) + '%';
+      document.getElementById('missingBox').textContent = (d.missing_fields||[]).length ? ('Missing: ' + d.missing_fields.join(', ')) : 'All required present';
+      document.getElementById('preview').textContent = JSON.stringify(d, null, 2);
+    });
+
+    document.getElementById('exportDocx').addEventListener('click', async () => {
+      if(!lastDraft){ alert('Generate a draft first'); return; }
+      const res = await fetch('/forms/export', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({draft:lastDraft, format:'all'})});
+      const j = await res.json();
+      alert('Exported: ' + (j.exported||[]).join(', '));
+    });
+  </script>
+</body>
+</html>
+

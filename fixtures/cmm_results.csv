@@ -1,0 +1,12 @@
+Characteristic ID,Description,Measured,Unit,Instrument
+1,Hole diameter,5.03,mm,Caliper
+2,Slot width,7.45,mm,Caliper
+3,Thickness,2.02,mm,Micrometer
+4,Length,24.90,mm,Caliper
+5,Width,15.10,mm,Caliper
+6,Counterbore depth,3.02,mm,Depth gauge
+7,Chamfer,0.49,mm,Caliper
+8,Surface flatness,0.11,mm,Indicator
+9,Hole pitch,9.98,mm,Caliper
+10,Edge radius,1.05,mm,Caliper
+

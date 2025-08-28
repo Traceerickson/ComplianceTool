@@ -12,6 +12,7 @@ from compare import compare_documents
 from ingest import Ingestor
 from search import SearchEngine
 from utils.logger import get_logger
+from routes.forms import router as forms_router
 
 logger = get_logger(__name__)
 
@@ -22,6 +23,7 @@ os.makedirs("data/uploads", exist_ok=True)
 os.makedirs("static", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="data/uploads"), name="uploads")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.include_router(forms_router)
 
 _ingestor = Ingestor()
 _search = SearchEngine()
@@ -36,6 +38,16 @@ async def index(request: Request):
                 files.append(fn)
     files = sorted(set(files))
     return templates.TemplateResponse("index.html", {"request": request, "files": files})
+
+@app.get("/ui/forms")
+async def ui_forms(request: Request):
+    # Delegate to forms router template for consistency
+    from ingest import Ingestor
+    ingestor = Ingestor()
+    files = []
+    for di in ingestor.doc_store.docs.values():
+        files.append({"doc_id": di.doc_id, "filename": di.filename})
+    return templates.TemplateResponse("ui/forms.html", {"request": request, "docs": files})
 
 
 @app.post("/upload")

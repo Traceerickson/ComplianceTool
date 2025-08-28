@@ -1,0 +1,9 @@
+{
+  "id": "NCR-2025-0001",
+  "symptom": "Hole diameter out of tolerance on Lot A12",
+  "part": "P-12345",
+  "lot": "A12",
+  "date": "2025-08-28",
+  "owner": "J. Doe"
+}
+
